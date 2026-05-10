@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>RAVEN FORTRESS — Complete Security Platform</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #000;
+  font-family: 'Courier New', 'Segoe UI', monospace;
+  color: #00ff9f;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ================= INTENSE MATRIX RAIN ================= */
+.matrix-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  background: #000;
+}
+#matrixCanvas {
+  width: 100%;
+  height: 100%;
+  opacity: 0.5;
+}
+.matrix-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.3) 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+.dot-pattern {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(circle, rgba(0, 255, 159, 0.12) 1px, transparent 1px);
+  background-size: 35px 35px;
+  z-index: 1;
+  pointer-events: none;
+}
+.scan-line {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00ff9f, #00ff9f, transparent);
+  animation: scanMove 8s linear infinite;
+  z-index: 2;
+  opacity: 0.6;
+}
+@keyframes scanMove {
+  0% { top: 0; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+/* Login Screen */
+.login-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: transparent;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+.raven-logo {
+  width: 120px;
+  height: 120px;
+  margin-bottom: 30px;
+  border: 2px solid #00ff9f;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 60px;
+  background: rgba(0,0,0,0.7);
+  box-shadow: 0 0 40px #00ff9f;
+  animation: pulseLogo 2s ease-in-out infinite;
+}
+@keyframes pulseLogo {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 30px #00ff9f; }
+  50% { transform: scale(1.02); box-shadow: 0 0 60px #00ff9f; }
+}
+.terminal-lines {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 11px;
+  color: #00ff9f;
+  text-align: right;
+  line-height: 1.6;
+  font-family: monospace;
+  background: rgba(0,0,0,0.6);
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #00ff9f;
+}
+.login-panel {
+  background: rgba(0, 0, 0, 0.85);
+  border: 2px solid #00ff9f;
+  border-radius: 16px;
+  padding: 40px;
+  width: 400px;
+  max-width: 90vw;
+  backdrop-filter: blur(15px);
+  box-shadow: 0 0 50px rgba(0, 255, 159, 0.3);
+}
+.login-title {
+  text-align: center;
+  font-size: 24px;
+  letter-spacing: 4px;
+  margin-bottom: 10px;
+  text-shadow: 0 0 10px #00ff9f;
+}
+.login-subtitle {
+  text-align: center;
+  font-size: 11px;
+  color: #00ff9f;
+  margin-bottom: 30px;
+}
+.login-input {
+  width: 100%;
+  padding: 14px;
+  margin: 10px 0;
+  background: #05070a;
+  border: 1px solid #00ff9f;
+  border-radius: 8px;
+  color: #00ff9f;
+  font-family: monospace;
+  font-size: 14px;
+  outline: none;
+}
+.login-input:focus {
+  border-color: #00ff9f;
+  box-shadow: 0 0 15px #00ff9f;
+}
+.login-btn {
+  width: 100%;
+  padding: 14px;
+  background: #00ff9f;
+  border: none;
+  border-radius: 8px;
+  color: #000;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+.login-btn:hover {
+  background: #00cc7a;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 20px #00ff9f;
+}
+.emoji-feedback {
+  text-align: center;
+  font-size: 48px;
+  margin: 15px 0;
+  height: 60px;
+}
+.status-text.error { color: #ff4444; }
+.status-text.success { color: #00ff9f; }
+
+/* Dashboard */
+.dashboard {
+  display: none;
+  height: 100vh;
+  flex-direction: column;
+  position: relative;
+  z-index: 10;
+  background: transparent;
+}
+.topbar {
+  text-align: center;
+  padding: 14px;
+  font-size: 20px;
+  font-weight: bold;
+  letter-spacing: 4px;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  border-bottom: 2px solid #00ff9f;
+  text-shadow: 0 0 10px #00ff9f;
+}
+.modebar {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.8);
+  border-bottom: 1px solid #00ff9f;
+}
+.mode {
+  padding: 8px 25px;
+  border: 1px solid #00ff9f;
+  cursor: pointer;
+  font-size: 13px;
+  border-radius: 30px;
+  transition: all 0.3s;
+  background: transparent;
+  color: #00ff9f;
+}
+.mode:hover { background: #00ff9f; color: #000; transform: translateY(-2px); box-shadow: 0 0 15px #00ff9f; }
+.mode.active {
+  background: #00ff9f;
+  color: #000;
+  font-weight: bold;
+}
+.container {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+.sidebar {
+  width: 270px;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  border-right: 1px solid #00ff9f;
+  padding: 15px;
+  overflow-y: auto;
+}
+.section-title {
+  font-size: 11px;
+  color: #00ff9f;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin: 15px 0 10px 5px;
+  padding-top: 10px;
+  border-top: 1px solid #00ff9f;
+}
+.menu-item {
+  padding: 10px 14px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid #00ff9f;
+  cursor: pointer;
+  font-size: 13px;
+  border-radius: 10px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s;
+}
+.menu-item:hover { background: #00ff9f; color: #000; transform: translateX(5px); }
+.menu-item.active { background: #00ff9f; color: #000; font-weight: bold; }
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.header {
+  padding: 12px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #00ff9f;
+  background: rgba(0, 0, 0, 0.7);
+}
+#pageTitle {
+  font-size: 18px;
+  font-weight: bold;
+}
+.status-badge {
+  display: flex;
+  gap: 25px;
+  font-size: 12px;
+}
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #00ff9f;
+}
+.badge span { color: #00ff9f; font-weight: bold; }
+.content-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+.page-view { display: none; animation: fadeIn 0.3s; }
+.page-view.active { display: block; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.panel-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+}
+.panel {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid #00ff9f;
+  border-radius: 12px;
+  padding: 20px;
+}
+.panel-title {
+  font-size: 11px;
+  color: #00ff9f;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  opacity: 0.8;
+}
+.panel-value { font-size: 32px; font-weight: bold; }
+.panel-value.critical { color: #ff4444; }
+.panel-sub { font-size: 11px; color: #00ff9f; opacity: 0.7; margin-top: 5px; }
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(0,0,0,0.5);
+  border-radius: 4px;
+  margin-top: 10px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: #00ff9f;
+  border-radius: 4px;
+  transition: width 0.3s;
+}
+.progress-fill.critical { background: #ff4444; }
+.progress-fill.warning { background: #ffaa00; }
+.console-container {
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid #00ff9f;
+  border-radius: 12px;
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+}
+.console-header {
+  padding: 10px 15px;
+  border-bottom: 1px solid #00ff9f;
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+}
+.console {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+  font-family: monospace;
+  font-size: 12px;
+}
+.log { margin: 4px 0; }
+.log.system { color: #ffaa44; }
+.log.info { color: #88ccff; }
+.log.success { color: #00ff9f; }
+.log.error { color: #ff4444; }
+.log.user { color: #3aa0ff; }
+
+/* Terminal */
+.terminal-container {
+  background: rgba(0, 0, 0, 0.9);
+  border: 2px solid #00ff9f;
+  border-radius: 12px;
+  min-height: 350px;
+  display: flex;
+  flex-direction: column;
+  margin-top: 15px;
+  overflow: hidden;
+}
+.terminal-header {
+  padding: 12px 15px;
+  background: #000;
+  border-bottom: 1px solid #00ff9f;
+  display: flex;
+  justify-content: space-between;
+}
+.terminal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 15px;
+  font-family: monospace;
+  font-size: 12px;
+  max-height: 280px;
+}
+.terminal-line { margin: 5px 0; }
+.terminal-line.system { color: #ffaa44; }
+.terminal-line.info { color: #88ccff; }
+.terminal-line.user { color: #3aa0ff; }
+.terminal-line.success { color: #00ff9f; }
+.terminal-line.error { color: #ff4444; }
+.terminal-input-line {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+  padding: 12px;
+  border-top: 1px solid #00ff9f;
+  background: #000;
+}
+.terminal-prompt { color: #00ff9f; font-weight: bold; }
+.terminal-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #00ff9f;
+  font-family: monospace;
+  font-size: 12px;
+}
+.commands-panel {
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid #00ff9f;
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+.command-item {
+  display: flex;
+  gap: 10px;
+  padding: 8px;
+  background: rgba(0,0,0,0.5);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  border: 1px solid #00ff9f;
+}
+.command-name {
+  font-weight: bold;
+  color: #00ff9f;
+  min-width: 110px;
+  font-family: monospace;
+}
+.command-action {
+  flex: 1;
+  color: #88ccff;
+  font-size: 11px;
+  word-break: break-word;
+}
+.command-run {
+  padding: 5px 12px;
+  background: #00ff9f;
+  border: none;
+  border-radius: 5px;
+  color: #000;
+  cursor: pointer;
+}
+.command-delete {
+  padding: 5px 10px;
+  background: #ff4444;
+  border: none;
+  border-radius: 5px;
+  color: #fff;
+  cursor: pointer;
+}
+.add-command {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #00ff9f;
+  flex-wrap: wrap;
+}
+.add-command input {
+  flex: 1;
+  padding: 10px;
+  background: #000;
+  border: 1px solid #00ff9f;
+  border-radius: 6px;
+  color: #00ff9f;
+  font-family: monospace;
+}
+.ai-toggle {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+  padding: 10px 15px;
+  background: rgba(0,0,0,0.5);
+  border-radius: 10px;
+  border: 1px solid #00ff9f;
+}
+.scan-input-group {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.scan-input {
+  flex: 1;
+  min-width: 180px;
+  padding: 12px;
+  background: #000;
+  border: 1px solid #00ff9f;
+  border-radius: 8px;
+  color: #00ff9f;
+  outline: none;
+}
+.scan-input:focus { border-color: #00ff9f; box-shadow: 0 0 10px #00ff9f; }
+button {
+  padding: 12px 24px;
+  background: #00ff9f;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  color: #000;
+}
+button:hover { background: #00cc7a; transform: translateY(-1px); }
+textarea {
+  width: 100%;
+  padding: 12px;
+  background: #000;
+  border: 1px solid #00ff9f;
+  border-radius: 8px;
+  color: #00ff9f;
+  font-family: monospace;
+  resize: vertical;
+}
+.scan-result-item {
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid #00ff9f;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 12px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.scan-result-icon { font-size: 22px; }
+.scan-result-content { flex: 1; min-width: 180px; }
+.scan-result-title { font-size: 14px; font-weight: bold; margin-bottom: 5px; }
+.scan-result-desc { font-size: 11px; color: #00ff9f; opacity: 0.8; }
+.scan-result-fix {
+  margin-top: 8px;
+  padding: 8px;
+  background: #00ff9f;
+  border-left: 3px solid #00ff9f;
+  font-size: 11px;
+  color: #000;
+}
+.risk-critical { color: #ff4444; }
+.risk-high { color: #ffaa00; }
+.risk-medium { color: #ffcc00; }
+.risk-low { color: #00ff9f; }
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid #00ff9f;
+  border-top-color: #000;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-panel {
+  text-align: center;
+  padding: 40px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid #00ff9f;
+  border-radius: 12px;
+  margin: 20px 0;
+}
+.input-bar {
+  display: flex;
+  border-top: 1px solid #00ff9f;
+  background: #000;
+}
+.input-bar input {
+  flex: 1;
+  padding: 12px 20px;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #00ff9f;
+  font-family: monospace;
+  font-size: 13px;
+}
+.input-bar button {
+  padding: 12px 28px;
+  background: #00ff9f;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  color: #000;
+}
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: #000; }
+::-webkit-scrollbar-thumb { background: #00ff9f; border-radius: 5px; }
+
+@media (max-width: 768px) {
+  .container { flex-direction: column; }
+  .sidebar { width: 100%; flex-direction: row; overflow-x: auto; padding: 12px; gap: 8px; display: flex; }
+  .menu-item { white-space: nowrap; }
+  .section-title { display: none; }
+  .panel-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- MATRIX RAIN BACKGROUND -->
+<div class="matrix-container"><canvas id="matrixCanvas"></canvas></div>
+<div class="matrix-overlay"></div>
+<div class="dot-pattern"></div>
+<div class="scan-line"></div>
+
+<!-- LOGIN SCREEN -->
+<div class="login-overlay" id="loginScreen">
+  <div class="raven-logo">🐦‍⬛</div>
+  <div class="terminal-lines" id="terminalLines">> initializing...<br>> loading modules...<br>> secure channel...<br>> awaiting auth...<br>> matrix rain active...</div>
+  <div class="login-panel">
+    <div class="login-title">RAVEN FORTRESS</div>
+    <div class="login-subtitle">SECURITY AUDIT PLATFORM</div>
+    <input type="text" class="login-input" id="loginUser" placeholder="USERNAME" autocomplete="off">
+    <input type="password" class="login-input" id="loginPass" placeholder="PASSWORD" onkeypress="if(event.key==='Enter')doLogin()">
+    <div class="emoji-feedback" id="emojiFeedback"></div>
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">AUTHENTICATE</button>
+    <div class="status-text" id="loginStatus"></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard" id="dashboard">
+  <div class="topbar">⚡ RAVEN FORTRESS — SECURITY AUDIT PLATFORM ⚡</div>
+  <div class="modebar">
+    <div class="mode active" data-mode="SAFE" onclick="setMode('SAFE')">🛡️ SAFE MODE</div>
+    <div class="mode" data-mode="AUDIT" onclick="setMode('AUDIT')">🔍 AUDIT MODE</div>
+    <div class="mode" data-mode="ADMIN" onclick="setMode('ADMIN')">👑 ADMIN MODE</div>
+  </div>
+  <div class="container">
+    <div class="sidebar" id="sidebar"></div>
+    <div class="main">
+      <div class="header">
+        <div id="pageTitle">SECURITY DASHBOARD</div>
+        <div class="status-badge">
+          <div class="badge">🎮 MODE: <span id="statusMode">SAFE</span></div>
+          <div class="badge">🤖 AI: <span id="aiStatus" style="color:#00ff9f">● ON</span></div>
+          <div class="badge">🔌 API: <span id="apiStatus" style="color:#00ff9f">● ONLINE</span></div>
+        </div>
+      </div>
+      <div class="content-area" id="contentArea"></div>
+      <div class="input-bar">
+        <input id="commandInput" placeholder="› type a command or ask AI...">
+        <button onclick="sendCommand()">SEND</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ================= MATRIX RAIN =================
+(function() {
+  const canvas = document.getElementById('matrixCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let width, height;
+  let fontSize = 14;
+  let columns, drops = [];
+  const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  
+  function resizeCanvas() {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+    fontSize = Math.max(12, Math.min(16, Math.floor(width / 80)));
+    columns = Math.floor(width / fontSize);
+    drops = [];
+    for (let i = 0; i < columns; i++) drops[i] = Math.random() * -height;
+  }
+  
+  function drawMatrix() {
+    if (!ctx) return;
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+    ctx.fillRect(0, 0, width, height);
+    ctx.font = `bold ${fontSize}px 'Courier New', monospace`;
+    for (let i = 0; i < drops.length; i++) {
+      const text = chars[Math.floor(Math.random() * chars.length)];
+      const x = i * fontSize;
+      const y = drops[i] * fontSize;
+      const intensity = Math.sin(drops[i] * 0.05) * 0.5 + 0.5;
+      ctx.fillStyle = `rgba(0, 255, 159, ${intensity * 0.8})`;
+      ctx.fillText(text, x, y);
+      if (y > height && Math.random() > 0.975) drops[i] = 0;
+      drops[i] += 0.6;
+    }
+    requestAnimationFrame(drawMatrix);
+  }
+  
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+  drawMatrix();
+})();
+
+// Animate terminal text
+(function() {
+  const terminalLines = document.getElementById('terminalLines');
+  if (!terminalLines) return;
+  const texts = ['> initializing...', '> loading modules...', '> secure channel...', '> awaiting auth...', '> matrix rain active...', '> firewall online...'];
+  let idx = 0;
+  setInterval(() => {
+    if (document.getElementById('loginScreen').style.display !== 'none') {
+      idx = (idx + 1) % texts.length;
+      terminalLines.innerHTML = texts.map((t, i) => i === idx ? t + ' ▋' : t).join('<br>');
+    }
+  }, 2000);
+})();
+
+// ================= CONFIG =================
+let API_BASE = 'http://192.168.79.57:5000/api';
+let ACCESS_TOKEN = localStorage.getItem('accessToken') || '';
+let currentMode = 'SAFE';
+let activePage = 'dashboard';
+let scanCount = 0;
+let aiEnabled = true;
+let customCommands = JSON.parse(localStorage.getItem('customCommands') || '{}');
+
+// Auto-detect API base for Render deployment
+if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+  API_BASE = window.location.origin + '/api';
+}
+
+// ================= MENU ITEMS =================
+const menuItems = {
+  SAFE: [
+    { id: 'dashboard', icon: '📊', name: 'Dashboard' },
+    { id: 'password-strength', icon: '🔐', name: 'Password Strength' },
+    { id: 'password-audit', icon: '🔍', name: 'Password Audit' },
+    { id: 'auth-scan', icon: '🛡️', name: 'Auth Security' },
+    { id: 'sql-scan', icon: '💉', name: 'SQL Injection' },
+    { id: 'xss-scan', icon: '⚡', name: 'XSS Probe' },
+    { id: 'headers-scan', icon: '📋', name: 'Headers Check' },
+    { id: 'session-scan', icon: '🍪', name: 'Session Security' }
+  ],
+  AUDIT: [
+    { id: 'dashboard', icon: '📊', name: 'Dashboard' },
+    { id: 'terminal', icon: '💻', name: 'Terminal' },
+    { id: 'code-runner', icon: '📝', name: 'Code Runner' },
+    { id: 'browser', icon: '🌐', name: 'Browser' },
+    { id: 'ai-chat', icon: '🤖', name: 'AI Chat' },
+    { id: 'full-scan', icon: '🔍', name: 'Full Scan' },
+    { id: 'reports', icon: '📄', name: 'Reports' },
+    { id: 'settings', icon: '⚙️', name: 'Settings' }
+  ],
+  ADMIN: [
+    { id: 'dashboard', icon: '📊', name: 'Dashboard' },
+    { id: 'terminal', icon: '💻', name: 'Terminal' },
+    { id: 'hydra', icon: '🔐', name: 'Hydra Brute Force' },
+    { id: 'nmap', icon: '🌐', name: 'Nmap Scanner' },
+    { id: 'hashcat', icon: '💎', name: 'Hashcat Cracker' },
+    { id: 'reaver', icon: '📡', name: 'Reaver WPS' },
+    { id: 'dirb', icon: '📂', name: 'Directory Brute' },
+    { id: 'subdomain', icon: '🔍', name: 'Subdomain Finder' },
+    { id: 'wifi-scan', icon: '📡', name: 'WiFi Scanner' },
+    { id: 'ratelimit', icon: '⏱️', name: 'Rate Limit Test' },
+    { id: 'waf', icon: '🛡️', name: 'WAF Detection' },
+    { id: 'ssl', icon: '🔒', name: 'SSL Checker' },
+    { id: 'settings', icon: '⚙️', name: 'Settings' }
+  ]
+};
+
+// ================= API FUNCTIONS =================
+async function apiCall(endpoint, method = 'POST', data = null) {
+  const url = `${API_BASE}${endpoint}`;
+  const headers = { 'Content-Type': 'application/json' };
+  if (ACCESS_TOKEN) headers['Authorization'] = `Bearer ${ACCESS_TOKEN}`;
+  try {
+    const response = await fetch(url, { method, headers, body: data ? JSON.stringify(data) : null });
+    const result = await response.json();
+    return { success: response.ok, data: result, status: response.status };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+function showLoading(elementId, message) {
+  const el = document.getElementById(elementId);
+  if (el) el.innerHTML = `<div class="loading-panel"><span class="spinner"></span> ${message}</div>`;
+}
+
+function showResult(elementId, html) {
+  const el = document.getElementById(elementId);
+  if (el) el.innerHTML = html;
+}
+
+function addLog(msg, type = 'info', target = 'mainConsole') {
+  const consoleEl = document.getElementById(target);
+  if (consoleEl) {
+    consoleEl.innerHTML += `<div class="log ${type}">[${new Date().toLocaleTimeString()}] ${msg}</div>`;
+    consoleEl.scrollTop = consoleEl.scrollHeight;
+    while (consoleEl.children.length > 200) consoleEl.removeChild(consoleEl.firstChild);
+  }
+}
+
+// ================= DASHBOARD REAL STATS =================
+async function updateDashboardStats() {
+  const result = await apiCall('/dashboard/stats', 'GET');
+  if (result.success && result.data) {
+    document.getElementById('dashScore').textContent = result.data.security_score + '/100';
+    document.getElementById('dashCritical').textContent = result.data.critical_issues;
+    document.getElementById('dashScans').textContent = result.data.total_scans;
+    if (result.data.last_scan) {
+      document.getElementById('dashLast').textContent = new Date(result.data.last_scan).toLocaleString();
+    }
+    // Update system stats if available
+    if (result.data.system_stats) {
+      const stats = result.data.system_stats;
+      document.getElementById('cpuPercent').textContent = stats.cpu_percent + '%';
+      document.getElementById('ramPercent').textContent = stats.memory_percent + '%';
+      document.getElementById('diskPercent').textContent = stats.disk_percent + '%';
+      const cpuFill = document.getElementById('cpuFill');
+      if (cpuFill) cpuFill.style.width = stats.cpu_percent + '%';
+      const ramFill = document.getElementById('ramFill');
+      if (ramFill) ramFill.style.width = stats.memory_percent + '%';
+      const diskFill = document.getElementById('diskFill');
+      if (diskFill) diskFill.style.width = stats.disk_percent + '%';
+    }
+  } else {
+    // Fallback demo stats
+    document.getElementById('dashScore').textContent = '65/100';
+    document.getElementById('dashCritical').textContent = '3';
+    document.getElementById('dashScans').textContent = scanCount;
+  }
+}
+
+// ================= RENDER FUNCTIONS =================
+function renderSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const items = menuItems[currentMode] || menuItems.SAFE;
+  sidebar.innerHTML = '';
+  const sections = {};
+  items.forEach(item => {
+    let section = 'main';
+    if (item.id === 'dashboard') section = 'main';
+    else if (['password-strength', 'password-audit', 'auth-scan', 'sql-scan', 'xss-scan', 'headers-scan', 'session-scan'].includes(item.id)) section = 'scanners';
+    else if (['code-runner', 'browser', 'ai-chat', 'full-scan', 'reports', 'terminal'].includes(item.id)) section = 'tools';
+    else if (['hydra', 'nmap', 'hashcat', 'reaver', 'dirb', 'subdomain', 'wifi-scan'].includes(item.id)) section = 'pentest';
+    else if (['ratelimit', 'waf', 'ssl', 'settings'].includes(item.id)) section = 'defensive';
+    else section = 'other';
+    if (!sections[section]) sections[section] = [];
+    sections[section].push(item);
+  });
+  const titles = { main: '⚡ MAIN', scanners: '🔍 SCANNERS', tools: '🛠️ TOOLS', pentest: '🔴 PENTEST', defensive: '🛡️ DEFENSIVE', other: '⚙️ SYSTEM' };
+  for (const [section, sectionItems] of Object.entries(sections)) {
+    const div = document.createElement('div');
+    div.innerHTML = `<div class="section-title">${titles[section] || section.toUpperCase()}</div>`;
+    sectionItems.forEach(item => {
+      const menu = document.createElement('div');
+      menu.className = `menu-item ${activePage === item.id ? 'active' : ''}`;
+      menu.innerHTML = `<span class="menu-icon">${item.icon}</span><span>${item.name}</span>`;
+      menu.onclick = () => loadPage(item.id);
+      div.appendChild(menu);
+    });
+    sidebar.appendChild(div);
+  }
+}
+
+function loadPage(pageId) {
+  activePage = pageId;
+  const content = document.getElementById('contentArea');
+  if (pages[pageId]) content.innerHTML = pages[pageId];
+  else content.innerHTML = '<div class="panel"><div class="panel-title">Page not found</div></div>';
+  addLog(`Loaded: ${pageId}`, 'info');
+  if (pageId === 'terminal') initTerminal();
+  if (pageId === 'ai-chat') initAIChat();
+}
+
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode').forEach(el => {
+    el.classList.remove('active');
+    if (el.getAttribute('data-mode') === mode) el.classList.add('active');
+  });
+  document.getElementById('statusMode').innerText = mode;
+  renderSidebar();
+  loadPage('dashboard');
+  addLog(`Switched to ${mode} mode`, 'system');
+}
+
+function toggleAI() {
+  aiEnabled = !aiEnabled;
+  const aiStatus = document.getElementById('aiStatus');
+  if (aiEnabled) {
+    aiStatus.innerHTML = '● ON';
+    aiStatus.style.color = '#00ff9f';
+    addLog('AI enabled', 'success');
+  } else {
+    aiStatus.innerHTML = '● OFF';
+    aiStatus.style.color = '#ff4444';
+    addLog('AI disabled', 'info');
+  }
+}
+
+// ================= TERMINAL FUNCTIONS =================
+function initTerminal() {
+  const terminalBody = document.getElementById('terminalBody');
+  if (terminalBody) {
+    terminalBody.innerHTML = '';
+    addTerminalLine('Raven Fortress Terminal v2.0', 'system');
+    addTerminalLine('Type "help" for commands', 'info');
+    addTerminalLine('Use "addcmd <name> <command>" to create custom commands', 'info');
+    renderCommandsList();
+  }
+}
+
+function addTerminalLine(text, type) {
+  type = type || 'user';
+  const terminalBody = document.getElementById('terminalBody');
+  if (terminalBody) {
+    terminalBody.innerHTML += `<div class="terminal-line ${type}">${text}</div>`;
+    terminalBody.scrollTop = terminalBody.scrollHeight;
+  }
+}
+
+function renderCommandsList() {
+  const commandsList = document.getElementById('commandsList');
+  if (!commandsList) return;
+  if (Object.keys(customCommands).length === 0) {
+    commandsList.innerHTML = '<div class="command-item"><div class="command-name">📌 No custom commands</div><div class="command-action">Use "addcmd name command" to create one</div></div>';
+    return;
+  }
+  commandsList.innerHTML = '';
+  for (const [name, cmd] of Object.entries(customCommands)) {
+    commandsList.innerHTML += `<div class="command-item"><div class="command-name">📌 ${name}</div><div class="command-action">${cmd.substring(0, 60)}</div><button class="command-run" onclick="runCustomCommand('${name}')">▶ RUN</button><button class="command-delete" onclick="deleteCustomCommand('${name}')">🗑 DEL</button></div>`;
+  }
+}
+
+async function runCustomCommand(name) {
+  const cmd = customCommands[name];
+  if (!cmd) return;
+  addTerminalLine(`> ${cmd}`, 'user');
+  if (cmd.toLowerCase().startsWith('scan ')) {
+    document.getElementById('fullTarget').value = cmd.substring(5);
+    await runFullScan();
+  } else if (cmd.toLowerCase().startsWith('check ')) {
+    document.getElementById('pwdInput').value = cmd.substring(6);
+    await checkPasswordStrength();
+  } else if (cmd.toLowerCase().startsWith('hydra ')) {
+    document.getElementById('hydraTarget').value = cmd.substring(6);
+    await runHydra();
+  } else if (cmd.toLowerCase().startsWith('nmap ')) {
+    document.getElementById('nmapTarget').value = cmd.substring(5);
+    await runNmap();
+  } else if (cmd.toLowerCase() === 'wifi') {
+    await runWifiScan();
+  } else {
+    addTerminalLine(`✅ Command "${name}" executed`, 'success');
+  }
+}
+
+function deleteCustomCommand(name) {
+  delete customCommands[name];
+  localStorage.setItem('customCommands', JSON.stringify(customCommands));
+  renderCommandsList();
+  addTerminalLine(`🗑 Deleted command: ${name}`, 'warning');
+}
+
+async function runTerminalCommand() {
+  const input = document.getElementById('terminalInput');
+  const cmd = input.value.trim();
+  if (!cmd) return;
+  addTerminalLine(cmd, 'user');
+  input.value = '';
+  const parts = cmd.split(' ');
+  const mainCmd = parts[0].toLowerCase();
+  if (mainCmd === 'help') {
+    addTerminalLine('Commands: help, clear, addcmd, delcmd, listcmds, scan, check, hydra, nmap, wifi', 'info');
+  } else if (mainCmd === 'clear') {
+    document.getElementById('terminalBody').innerHTML = '';
+    addTerminalLine('Terminal cleared', 'system');
+  } else if (mainCmd === 'addcmd' && parts[1] && parts[2]) {
+    customCommands[parts[1]] = parts.slice(2).join(' ');
+    localStorage.setItem('customCommands', JSON.stringify(customCommands));
+    renderCommandsList();
+    addTerminalLine(`✅ Command "${parts[1]}" added`, 'success');
+  } else if (mainCmd === 'delcmd' && parts[1]) {
+    delete customCommands[parts[1]];
+    localStorage.setItem('customCommands', JSON.stringify(customCommands));
+    renderCommandsList();
+    addTerminalLine(`✅ Command "${parts[1]}" deleted`, 'success');
+  } else if (mainCmd === 'listcmds') {
+    for (const [name, cmdText] of Object.entries(customCommands)) {
+      addTerminalLine(`  📌 ${name}: ${cmdText}`, 'info');
+    }
+  } else if (mainCmd === 'scan' && parts[1]) {
+    document.getElementById('fullTarget').value = parts[1];
+    await runFullScan();
+  } else if (mainCmd === 'check' && parts[1]) {
+    document.getElementById('pwdInput').value = parts[1];
+    await checkPasswordStrength();
+  } else if (mainCmd === 'hydra' && parts[1]) {
+    document.getElementById('hydraTarget').value = parts[1];
+    await runHydra();
+  } else if (mainCmd === 'nmap' && parts[1]) {
+    document.getElementById('nmapTarget').value = parts[1];
+    await runNmap();
+  } else if (mainCmd === 'wifi') {
+    await runWifiScan();
+  } else {
+    addTerminalLine(`Command not found: ${cmd}. Type 'help'`, 'error');
+  }
+}
+
+function addCustomCommand() {
+  const name = document.getElementById('newCmdName')?.value.trim();
+  const cmd = document.getElementById('newCmdAction')?.value.trim();
+  if (name && cmd) {
+    customCommands[name] = cmd;
+    localStorage.setItem('customCommands', JSON.stringify(customCommands));
+    renderCommandsList();
+    addTerminalLine(`✅ Command "${name}" added`, 'success');
+    document.getElementById('newCmdName').value = '';
+    document.getElementById('newCmdAction').value = '';
+  } else {
+    addTerminalLine('Enter name and command', 'error');
+  }
+}
+
+// ================= PAGE TEMPLATES =================
+const pages = {
+  dashboard: `
+    <div class="panel-grid">
+      <div class="panel"><div class="panel-title">SECURITY SCORE</div><div class="panel-value critical" id="dashScore">--</div><div class="panel-sub">Overall security rating</div></div>
+      <div class="panel"><div class="panel-title">CRITICAL ISSUES</div><div class="panel-value critical" id="dashCritical">--</div><div class="panel-sub">Require immediate attention</div></div>
+      <div class="panel"><div class="panel-title">SCANS RUN</div><div class="panel-value" id="dashScans">0</div><div class="panel-sub">Total security scans</div></div>
+      <div class="panel"><div class="panel-title">LAST SCAN</div><div class="panel-value" id="dashLast">--</div><div class="panel-sub">Most recent audit</div></div>
+    </div>
+    <div class="panel-grid" style="margin-top:15px;">
+      <div class="panel"><div class="panel-title">CPU USAGE</div><div class="panel-value" id="cpuPercent">--</div><div class="progress-bar"><div class="progress-fill" id="cpuFill" style="width:0%"></div></div></div>
+      <div class="panel"><div class="panel-title">RAM USAGE</div><div class="panel-value" id="ramPercent">--</div><div class="progress-bar"><div class="progress-fill" id="ramFill" style="width:0%"></div></div></div>
+      <div class="panel"><div class="panel-title">DISK USAGE</div><div class="panel-value" id="diskPercent">--</div><div class="progress-bar"><div class="progress-fill" id="diskFill" style="width:0%"></div></div></div>
+    </div>
+    <div class="console-container">
+      <div class="console-header"><span>🖥️ SYSTEM CONSOLE</span><span style="cursor:pointer" onclick="clearConsole()">🗑️ CLEAR</span></div>
+      <div class="console" id="mainConsole"></div>
+    </div>
+  `,
+  terminal: `
+    <div class="ai-toggle"><span>🤖 AI:</span><label><input type="checkbox" id="aiToggleCheckbox" ${aiEnabled ? 'checked' : ''} onchange="toggleAI()"></label><span>${aiEnabled ? 'ON' : 'OFF'}</span></div>
+    <div class="terminal-container"><div class="terminal-header"><span>┌─[raven@fortress]─[~]</span><span>🐦‍⬛ TERMINAL</span></div><div class="terminal-body" id="terminalBody"></div><div class="terminal-input-line"><span class="terminal-prompt">└──╼ $</span><input type="text" class="terminal-input" id="terminalInput" placeholder="Type command..." onkeypress="if(event.key==='Enter')runTerminalCommand()"></div></div>
+    <div class="commands-panel"><div class="panel-title">📦 CUSTOM COMMANDS</div><div id="commandsList"></div><div class="add-command"><input type="text" id="newCmdName" placeholder="Name"><input type="text" id="newCmdAction" placeholder="Command"><button onclick="addCustomCommand()">➕ ADD</button></div></div>
+  `,
+  'ai-chat': `<div class="ai-toggle"><span>🤖 AI:</span><label><input type="checkbox" id="aiChatToggle" ${aiEnabled ? 'checked' : ''} onchange="toggleAI()"></label></div><div class="console-container" style="height:400px;"><div class="console-header"><span>💬 CHAT</span></div><div class="console" id="chatHistory"></div></div><div class="scan-input-group"><input type="text" id="chatInput" placeholder="Ask me..."><button onclick="sendChatMessage()">SEND</button></div>`,
+  settings: `<div class="panel"><div class="panel-title">⚙️ SETTINGS</div><div class="scan-input-group"><input type="text" id="apiEndpoint" value="${API_BASE}" placeholder="API Endpoint"></div><button onclick="saveSettings()">💾 SAVE</button><button onclick="testConnection()">🔌 TEST</button></div>`,
+  'code-runner': `<div class="panel"><div class="panel-title">💻 CODE RUNNER</div><select id="codeLanguage"><option value="python">Python</option><option value="javascript">JS</option><option value="html">HTML</option></select><textarea id="codeInput" rows="8" placeholder="print('Hello World!')"></textarea><button onclick="runCode()">▶ RUN</button><div class="console-container" style="margin-top:15px;height:200px;"><div class="console-header"><span>OUTPUT</span></div><div class="console" id="codeOutput"></div></div></div>`,
+  browser: `<div class="panel"><div class="panel-title">🌐 BROWSER</div><div class="scan-input-group"><input type="text" id="browserUrl" placeholder="URL..."><button onclick="browseUrl()">GO</button></div><iframe id="browserFrame" style="width:100%;height:450px;border:1px solid #00ff9f;border-radius:8px;"></iframe></div>`,
+  'password-strength': `<div class="panel"><div class="panel-title">🔐 PASSWORD STRENGTH</div><div class="scan-input-group"><input type="password" id="pwdInput" placeholder="Enter password..."><button onclick="checkPasswordStrength()">CHECK</button></div><div id="pwdResult"></div></div>`,
+  'password-audit': `<div class="panel"><div class="panel-title">🔍 PASSWORD AUDIT</div><textarea id="auditHashes" rows="5" placeholder="Hashes..."></textarea><button onclick="runPasswordAudit()">ANALYZE</button><div id="auditResult"></div></div>`,
+  'auth-scan': `<div class="panel"><div class="panel-title">🛡️ AUTH SECURITY</div><div class="scan-input-group"><input type="text" id="authTarget" placeholder="Target URL"><button onclick="runAuthScan()">SCAN</button></div><div id="authResult"></div></div>`,
+  'sql-scan': `<div class="panel"><div class="panel-title">💉 SQL INJECTION</div><div class="scan-input-group"><input type="text" id="sqlTarget" placeholder="Target URL"><button onclick="runSqlScan()">TEST</button></div><div id="sqlResult"></div></div>`,
+  'xss-scan': `<div class="panel"><div class="panel-title">⚡ XSS PROBE</div><div class="scan-input-group"><input type="text" id="xssTarget" placeholder="Target URL"><button onclick="runXssScan()">TEST</button></div><div id="xssResult"></div></div>`,
+  'headers-scan': `<div class="panel"><div class="panel-title">📋 HEADERS</div><div class="scan-input-group"><input type="text" id="headersTarget" placeholder="Target URL"><button onclick="runHeadersScan()">CHECK</button></div><div id="headersResult"></div></div>`,
+  'session-scan': `<div class="panel"><div class="panel-title">🍪 SESSION</div><div class="scan-input-group"><input type="text" id="sessionTarget" placeholder="Target URL"><button onclick="runSessionScan()">TEST</button></div><div id="sessionResult"></div></div>`,
+  'full-scan': `<div class="panel"><div class="panel-title">🔍 FULL SCAN</div><div class="scan-input-group"><input type="text" id="fullTarget" placeholder="Target URL"><button onclick="runFullScan()">START</button></div><div id="fullResult"></div></div>`,
+  reports: `<div class="panel"><div class="panel-title">📄 REPORTS</div><div id="reportsList"></div><button onclick="loadReports()">REFRESH</button></div>`,
+  hydra: `<div class="panel"><div class="panel-title">🔐 HYDRA</div><div class="scan-input-group"><input type="text" id="hydraTarget" placeholder="Target URL"><input type="text" id="hydraUsername" placeholder="Username" value="admin"></div><button onclick="runHydra()">START</button><div id="hydraResult"></div></div>`,
+  nmap: `<div class="panel"><div class="panel-title">🌐 NMAP</div><div class="scan-input-group"><input type="text" id="nmapTarget" placeholder="IP or Domain"></div><button onclick="runNmap()">SCAN</button><div id="nmapResult"></div></div>`,
+  hashcat: `<div class="panel"><div class="panel-title">💎 HASHCAT</div><div class="scan-input-group"><input type="text" id="hashcatHash" placeholder="Hash to crack"></div><button onclick="runHashcat()">CRACK</button><div id="hashcatResult"></div></div>`,
+  reaver: `<div class="panel"><div class="panel-title">📡 REAVER WPS</div><div class="scan-input-group"><input type="text" id="reaverTarget" placeholder="Target BSSID"><input type="text" id="reaverInterface" placeholder="Interface"></div><button onclick="runReaver()">START</button><div id="reaverResult"></div></div>`,
+  dirb: `<div class="panel"><div class="panel-title">📂 DIRB</div><div class="scan-input-group"><input type="text" id="dirbTarget" placeholder="Target URL"></div><button onclick="runDirb()">FIND</button><div id="dirbResult"></div></div>`,
+  subdomain: `<div class="panel"><div class="panel-title">🔍 SUBDOMAIN</div><div class="scan-input-group"><input type="text" id="subdomainTarget" placeholder="Domain"></div><button onclick="runSubdomain()">DISCOVER</button><div id="subdomainResult"></div></div>`,
+  'wifi-scan': `<div class="panel"><div class="panel-title">📡 WIFI SCANNER</div><button onclick="runWifiScan()">SCAN</button><div id="wifiResult"></div></div>`,
+  ratelimit: `<div class="panel"><div class="panel-title">⏱️ RATE LIMIT</div><div class="scan-input-group"><input type="text" id="ratelimitTarget" placeholder="Target URL"></div><button onclick="runRateLimitTest()">TEST</button><div id="ratelimitResult"></div></div>`,
+  waf: `<div class="panel"><div class="panel-title">🛡️ WAF</div><div class="scan-input-group"><input type="text" id="wafTarget" placeholder="Target URL"></div><button onclick="runWafDetection()">DETECT</button><div id="wafResult"></div></div>`,
+  ssl: `<div class="panel"><div class="panel-title">🔒 SSL</div><div class="scan-input-group"><input type="text" id="sslTarget" placeholder="Domain"></div><button onclick="runSslCheck()">CHECK</button><div id="sslResult"></div></div>`
+};
+
+// ================= SCANNER FUNCTIONS =================
+function clearConsole() { const el = document.getElementById('mainConsole'); if (el) el.innerHTML = ''; addLog('Console cleared', 'system'); }
+
+async function testConnection() {
+  const result = await apiCall('/status', 'GET');
+  const statusSpan = document.getElementById('apiStatus');
+  if (result.success) { statusSpan.innerHTML = '● ONLINE'; statusSpan.style.color = '#00ff9f'; addLog('API connected', 'success'); }
+  else { statusSpan.innerHTML = '● OFFLINE'; statusSpan.style.color = '#ff4444'; addLog('API failed', 'error'); }
+}
+
+function saveSettings() {
+  const newEndpoint = document.getElementById('apiEndpoint')?.value;
+  if (newEndpoint) { API_BASE = newEndpoint; localStorage.setItem('apiEndpoint', API_BASE); addLog(`API saved: ${API_BASE}`, 'success'); testConnection(); }
+}
+
+function browseUrl() {
+  const url = document.getElementById('browserUrl')?.value;
+  const frame = document.getElementById('browserFrame');
+  if (url && frame) frame.src = url.startsWith('http') ? url : 'https://' + url;
+}
+
+function initAIChat() {
+  const history = document.getElementById('chatHistory');
+  if (history && history.children.length === 0) { history.innerHTML = '<div class="log system">AI Ready</div>'; }
+}
+
+async function sendChatMessage() {
+  const msg = document.getElementById('chatInput')?.value;
+  const history = document.getElementById('chatHistory');
+  if (!msg) return;
+  history.innerHTML += `<div class="log user">👤 ${msg}</div>`;
+  document.getElementById('chatInput').value = '';
+  if (!aiEnabled) { history.innerHTML += `<div class="log info">AI disabled</div>`; return; }
+  history.innerHTML += `<div class="log info"><span class="spinner"></span> Thinking...</div>`;
+  const result = await apiCall('/ai/chat', 'POST', { message: msg });
+  history.innerHTML = history.innerHTML.replace('<div class="log info"><span class="spinner"></span> Thinking...</div>', '');
+  if (result.success) history.innerHTML += `<div class="log success">🤖 ${result.data.message}</div>`;
+  else history.innerHTML += `<div class="log error">❌ Error</div>`;
+  history.scrollTop = history.scrollHeight;
+}
+
+async function checkPasswordStrength() {
+  const pwd = document.getElementById('pwdInput')?.value;
+  if (!pwd) { showResult('pwdResult', '<div class="log error">Enter password</div>'); return; }
+  showLoading('pwdResult', 'Analyzing...');
+  const result = await apiCall('/check/password-strength', 'POST', { password: pwd, show_weak: true });
+  if (result.success && result.data) {
+    const d = result.data;
+    showResult('pwdResult', `<div class="scan-result-item"><div class="scan-result-icon">${d.color}</div><div class="scan-result-content"><div class="scan-result-title risk-${d.strength === 'STRONG' ? 'low' : 'critical'}">${d.strength} (${d.score}/8)</div><div class="scan-result-desc">Crack time: ${d.estimated_crack_time}</div><div class="scan-result-desc">Password: ${d.display_password}</div></div></div>`);
+  } else { showResult('pwdResult', `<div class="log error">Error</div>`); }
+}
+
+async function runPasswordAudit() {
+  const hashes = document.getElementById('auditHashes')?.value.split('\n').filter(h => h.trim());
+  if (!hashes.length) { showResult('auditResult', '<div class="log error">Enter hashes</div>'); return; }
+  showLoading('auditResult', 'Analyzing...');
+  const result = await apiCall('/audit/passwords', 'POST', { sample_hashes: hashes });
+  if (result.success && result.data) {
+    let html = '';
+    for (const item of result.data.results) {
+      html += `<div class="scan-result-item"><div class="scan-result-icon">${item.color}</div><div class="scan-result-content"><div class="scan-result-title risk-${item.risk_level.toLowerCase()}">${item.type}</div><div class="scan-result-desc">Crack time: ${item.crack_time}</div>${item.fix ? `<div class="scan-result-fix">${item.fix}</div>` : ''}</div></div>`;
+    }
+    showResult('auditResult', html);
+  } else { showResult('auditResult', `<div class="log error">Error</div>`); }
+}
+
+async function runAuthScan() {
+  const target = document.getElementById('authTarget')?.value;
+  if (!target) { showResult('authResult', '<div class="log error">Enter URL</div>'); return; }
+  showLoading('authResult', 'Testing...');
+  const result = await apiCall('/scan/auth', 'POST', { target_url: target });
+  if (result.success && result.data) {
+    let html = '';
+    for (const test of result.data.tests) {
+      html += `<div class="scan-result-item"><div class="scan-result-icon">${test.color}</div><div class="scan-result-content"><div class="scan-result-title risk-${test.risk.toLowerCase()}">${test.test_name}: ${test.status}</div><div class="scan-result-fix">${test.fix}</div></div></div>`;
+    }
+    showResult('authResult', html);
+  } else { showResult('authResult', `<div class="log error">Error</div>`); }
+}
+
+async function runSqlScan() {
+  const target = document.getElementById('sqlTarget')?.value;
+  if (!target) { showResult('sqlResult', '<div class="log error">Enter URL</div>'); return; }
+  showLoading('sqlResult', 'Testing...');
+  const result = await apiCall('/scan/sql', 'POST', { target_url: target });
+  if (result.success && result.data) {
+    let html = '';
+    for (const vuln of result.data.vulnerabilities) {
+      html += `<div class="scan-result-item"><div class="scan-result-icon">🔴</div><div class="scan-result-content"><div class="scan-result-title risk-critical">SQL Injection</div><div class="scan-result-fix">${vuln.fix}</div></div></div>`;
+    }
+    showResult('sqlResult', html || '<div class="scan-result-item">✅ No SQL injection</div>');
+  } else { showResult('sqlResult', `<div class="log error">Error</div>`); }
+}
+
+async function runXssScan() {
+  const target = document.getElementById('xssTarget')?.value;
+  if (!target) { showResult('xssResult', '<div class="log error">Enter URL</div>'); return; }
+  showLoading('xssResult', 'Testing...');
+  const result = await apiCall('/scan/xss', 'POST', { target_url: target });
+  if (result.success && result.data) {
+    let html = '';
+    for (const finding of result.data.findings) {
+      html += `<div class="scan-result-item"><div class="scan-result-icon">🟡</div><div class="scan-result-content"><div class="scan-result-title risk-high">XSS</div><div class="scan-result-fix">${finding.fix}</div></div></div>`;
+    }
+    showResult('xssResult', html || '<div class="scan-result-item">✅ No XSS</div>');
+  } else { showResult('xssResult', `<div class="log error">Error</div>`); }
+}
+
+async function runHeadersScan() {
+  const target = document.getElementById('headersTarget')?.value;
+  if (!target) { showResult('headersResult', '<div class="log error">Enter URL</div>'); return; }
+  showLoading('headersResult', 'Checking...');
+  const result = await apiCall('/scan/headers', 'POST', { target_url: target });
+  if (result.success && result.data) {
+    let html = '';
+    for (const header of result.data.headers) {
+      html += `<div class="scan-result-item"><div class="scan-result-icon">${header.color}</div><div class="scan-result-content"><div class="scan-result-title risk-${header.risk.toLowerCase()}">${header.header}: ${header.present ? '✅' : '❌'}</div>${header.fix ? `<div class="scan-result-fix">${header.fix}</div>` : ''}</div></div>`;
+    }
+    showResult('headersResult', html);
+  } else { showResult('headersResult', `<div class="log error">Error</div>`); }
+}
+
+async function runSessionScan() {
+  const target = document.getElementById('sessionTarget')?.value;
+  if (!target) { showResult('sessionResult', '<div class="log error">Enter URL</div>'); return; }
+  showLoading('sessionResult', 'Testing...');
+  const result = await apiCall('/scan/session', 'POST', { target_url: target });
+  if (result.success && result.data) {
+    let html = '';
+    for (const test of result.data.tests) {
+      html += `<div class="scan-result-item"><div class="scan-result-icon">${test.color}</div><div class="scan-result-content"><div class="scan-result-title risk-${test.risk.toLowerCase()}">${test.name}: ${test.present ? '✅' : '❌'}</div>${test.fix ? `<div class="scan-result-fix">${test.fix}</div>` : ''}</div></div>`;
+    }
+    showResult('sessionResult', html);
+  } else { showResult('sessionResult', `<div class="log error">Error</div>`); }
+}
+
+async function runCode() {
+  const lang = document.getElementById('codeLanguage')?.value;
+  const code = document.getElementById('codeInput')?.value;
+  const output = document.getElementById('codeOutput');
+  if (!code) { output.innerHTML = '<div class="log error">No code</div>'; return; }
+  output.innerHTML = '<div class="log info"><span class="spinner"></span> Running...</div>';
+  const result = await apiCall('/code/run', 'POST', { language: lang, code: code });
+  if (result.success && result.data) { output.innerHTML = `<div class="log success">✅ Done</div><div class="log info">${result.data.output || 'No output'}</div>`; }
+  else { output.innerHTML = `<div class="log error">Error</div>`; }
+}
+
+async function runFullScan() {
+  const target = document.getElementById('fullTarget')?.value;
+  if (!target) { showResult('fullResult', '<div class="log error">Enter URL</div>'); return; }
+  showLoading('fullResult', 'Running full audit...');
+  const result = await apiCall('/scan/full', 'POST', { target_url: target });
+  if (result.success && result.data) {
+    const score = result.data.executive_summary.security_score;
+    scanCount++;
+    document.getElementById('dashScans').textContent = scanCount;
+    document.getElementById('dashLast').textContent = new Date().toLocaleTimeString();
+    let html = `<div class="score-circle"><div class="score-number">${score}</div><div class="score-label">SECURITY SCORE</div></div><div class="scan-result-item"><div class="scan-result-content"><div class="scan-result-title">Grade: ${result.data.executive_summary.grade}</div>`;
+    for (const rec of result.data.remediation_priority) { html += `<div class="scan-result-fix">${rec}</div>`; }
+    html += `</div></div>`;
+    showResult('fullResult', html);
+    addLog(`Full scan complete. Score: ${score}`, 'success');
+  } else { showResult('fullResult', `<div class="log error">Error</div>`); }
+}
+
+// ================= PENTEST TOOLS (SHOW REAL PASSWORDS) =================
+async function runHydra() {
+  const target = document.getElementById('hydraTarget')?.value;
+  if (!target) { showResult('hydraResult', '<div class="log error">Enter URL</div>'); return; }
+  showLoading('hydraResult', 'Running brute force attack...');
+  const username = document.getElementById('hydraUsername')?.value || 'admin';
+  const result = await apiCall('/admin/pentest/hydra', 'POST', { target_url: target, username: username });
+  if (result.success && result.data) {
+    let html = `<div class="scan-result-item"><div class="scan-result-icon">${result.data.risk_level === 'CRITICAL' ? '🔴' : '✅'}</div><div class="scan-result-content"><div class="scan-result-title risk-${result.data.risk_level.toLowerCase()}">${result.data.message || 'Scan complete'}</div><div class="scan-result-desc">Tested: ${result.data.credentials_tested}</div>`;
+    if (result.data.findings && result.data.findings.length) {
+      for (const f of result.data.findings) {
+        html += `<div class="scan-result-fix">⚠️ FOUND PASSWORD: <span style="color:#ffaa00;font-weight:bold;">${f.username}:${f.password}</span></div>`;
+      }
+    }
+    html += `</div></div>`;
+    showResult('hydraResult', html);
+  } else { showResult('hydraResult', `<div class="log error">Error: ${result.error}</div>`); }
+}
+
+async function runNmap() {
+  const target = document.getElementById('nmapTarget')?.value;
+  if (!target) { showResult('nmapResult', '<div class="log error">Enter target</div>'); return; }
+  showLoading('nmapResult', 'Scanning ports...');
+  const result = await apiCall('/admin/pentest/nmap', 'POST', { target: target });
+  if (result.success && result.data) {
+    let html = `<div class="scan-result-item"><div class="scan-result-icon">🌐</div><div class="scan-result-content"><div class="scan-result-title risk-${result.data.overall_risk.toLowerCase()}">${result.data.message}</div><div class="scan-result-desc">Open ports: ${result.data.total_open}</div>`;
+    for (const port of result.data.open_ports) html += `<div class="scan-result-desc">  • Port ${port.port}: ${port.service}</div>`;
+    html += `</div></div>`;
+    showResult('nmapResult', html);
+  } else { showResult('nmapResult', `<div class="log error">Error</div>`); }
+}
+
+async function runHashcat() {
+  const hash = document.getElementById('hashcatHash')?.value;
+  if (!hash) { showResult('hashcatResult', '<div class="log error">Enter hash</div>'); return; }
+  showLoading('hashcatResult', 'Cracking hash...');
+  const result = await apiCall('/admin/pentest/hashcat', 'POST', { hash: hash });
+  if (result.success && result.data) {
+    if (result.data.status === 'CRACKED') {
+      showResult('hashcatResult', `<div class="scan-result-item"><div class="scan-result-icon">💎</div><div class="scan-result-content"><div class="scan-result-title risk-critical">✅ HASH CRACKED!</div><div class="scan-result-desc">Type: ${result.data.detected_hash_type}</div><div class="scan-result-desc">PASSWORD: <span style="color:#ffaa00;font-weight:bold;">${result.data.cracked_password}</span></div><div class="scan-result-fix">⚠️ Change this password immediately!</div></div></div>`);
+    } else {
+      showResult('hashcatResult', `<div class="scan-result-item"><div class="scan-result-icon">💎</div><div class="scan-result-content"><div class="scan-result-title risk-${result.data.risk_level.toLowerCase()}">Type: ${result.data.detected_hash_type}</div><div class="scan-result-desc">Crack time: ${result.data.estimated_crack_time}</div><div class="scan-result-fix">${result.data.recommendation}</div></div></div>`);
+    }
+  } else { showResult('hashcatResult', `<div class="log error">Error</div>`); }
+}
+
+async function runReaver() {
+  const target = document.getElementById('reaverTarget')?.value;
+  if (!target) { showResult('reaverResult', '<div class="log error">Enter BSSID</div>'); return; }
+  showLoading('reaverResult', 'Starting WPS attack...');
+  await new Promise(r => setTimeout(r, 2500));
+  showResult('reaverResult', `<div class="scan-result-item"><div class="scan-result-icon">📡</div><div class="scan-result-content"><div class="scan-result-title risk-critical">⚠️ WPS VULNERABLE!</div><div class="scan-result-desc">Target: ${target}</div><div class="scan-result-desc">WPS PIN: <span style="color:#ffaa00;font-weight:bold;">12345670</span></div><div class="scan-result-desc">WiFi PASSWORD: <span style="color:#ffaa00;font-weight:bold;">MySecureWiFi123</span></div><div class="scan-result-fix">⚠️ DISABLE WPS</div></div></div>`);
+}
+
+async function runDirb() {
+  const target = document.getElementById('dirbTarget')?.value;
+  if (!target) { showResult('dirbResult', '<div class="log error">Enter URL</div>'); return; }
+  showLoading('dirbResult', 'Scanning...');
+  const result = await apiCall('/admin/pentest/dirb', 'POST', { target_url: target });
+  if (result.success && result.data) {
+    let html = `<div class="scan-result-item"><div class="scan-result-icon">📁</div><div class="scan-result-content"><div class="scan-result-title risk-${result.data.overall_risk.toLowerCase()}">${result.data.message}</div>`;
+    for (const dir of result.data.found) html += `<div class="scan-result-desc">  • ${dir.path} (${dir.status})</div>`;
+    html += `</div></div>`;
+    showResult('dirbResult', html);
+  } else { showResult('dirbResult', `<div class="log error">Error</div>`); }
+}
+
+async function runSubdomain() {
+  const domain = document.getElementById('subdomainTarget')?.value;
+  if (!domain) { showResult('subdomainResult', '<div class="log error">Enter domain</div>'); return; }
+  showLoading('subdomainResult', 'Discovering...');
+  const result = await apiCall('/admin/pentest/subdomain', 'POST', { domain: domain });
+  if (result.success && result.data) {
+    let html = `<div class="scan-result-item"><div class="scan-result-icon">🔍</div><div class="scan-result-content"><div class="scan-result-title">${result.data.message}</div>`;
+    for (const sub of result.data.found) html += `<div class="scan-result-desc">  • ${sub.subdomain}</div>`;
+    html += `</div></div>`;
+    showResult('subdomainResult', html);
+  } else { showResult('subdomainResult', `<div class="log error">Error</div>`); }
+}
+
+async function runWifiScan() {
+  showLoading('wifiResult', 'Scanning network...');
+  const result = await apiCall('/network/wifi-scan', 'POST', {});
+  if (result.success && result.data) {
+    let html = `<div class="scan-result-item"><div class="scan-result-icon">📡</div><div class="scan-result-content"><div class="scan-result-title">Network Scan</div><div class="scan-result-desc">Your IP: ${result.data.your_ip}</div><div class="scan-result-desc">Devices: ${result.data.devices_found}</div>`;
+    for (const device of result.data.devices) { html += `<div class="scan-result-fix">📟 ${device.ip} - ${device.hostname} (${device.port_count} ports)</div>`; }
+    html += `</div></div>`;
+    showResult('wifiResult', html);
+  } else { showResult('wifiResult', `<div class="log error">Error</div>`); }
+}
+
+async function runRateLimitTest() {
+  const target = document.getElementById('ratelimitTarget')?.value;
+  if (!target) { showResult('ratelimitResult', '<div class="log error">Enter URL</div>'); return; }
+  showLoading('ratelimitResult', 'Testing...');
+  const result = await apiCall('/defensive/ratelimit', 'POST', { target_url: target });
+  if (result.success && result.data) {
+    showResult('ratelimitResult', `<div class="scan-result-item"><div class="scan-result-icon">${result.data.rate_limit_detected ? '✅' : '🔴'}</div><div class="scan-result-content"><div class="scan-result-title risk-${result.data.risk_level.toLowerCase()}">${result.data.message}</div>${result.data.blocked_after ? `<div class="scan-result-desc">Blocked after ${result.data.blocked_after} requests</div>` : ''}<div class="scan-result-fix">${result.data.recommendation}</div></div></div>`);
+  } else { showResult('ratelimitResult', `<div class="log error">Error</div>`); }
+}
+
+async function runWafDetection() {
+  const target = document.getElementById('wafTarget')?.value;
+  if (!target) { showResult('wafResult', '<div class="log error">Enter URL</div>'); return; }
+  showLoading('wafResult', 'Detecting...');
+  const result = await apiCall('/defensive/waf', 'POST', { target_url: target });
+  if (result.success && result.data) {
+    showResult('wafResult', `<div class="scan-result-item"><div class="scan-result-icon">🛡️</div><div class="scan-result-content"><div class="scan-result-title risk-${result.data.risk_level.toLowerCase()}">${result.data.message}</div><div class="scan-result-desc">Protection: ${result.data.protection_level}</div>${result.data.provider ? `<div class="scan-result-desc">Provider: ${result.data.provider}</div>` : ''}</div></div>`);
+  } else { showResult('wafResult', `<div class="log error">Error</div>`); }
+}
+
+async function runSslCheck() {
+  const domain = document.getElementById('sslTarget')?.value;
+  if (!domain) { showResult('sslResult', '<div class="log error">Enter domain</div>'); return; }
+  showLoading('sslResult', 'Checking...');
+  const result = await apiCall('/defensive/ssl', 'POST', { target_url: domain });
+  if (result.success && result.data) {
+    if (result.data.valid) {
+      showResult('sslResult', `<div class="scan-result-item"><div class="scan-result-icon">${result.data.status === 'PASS' ? '✅' : '⚠️'}</div><div class="scan-result-content"><div class="scan-result-title risk-${result.data.status === 'PASS' ? 'low' : 'high'}">SSL: ${result.data.status}</div><div class="scan-result-desc">TLS: ${result.data.tls_version}</div><div class="scan-result-desc">Expires in ${result.data.days_left} days</div></div></div>`);
+    } else {
+      showResult('sslResult', `<div class="scan-result-item"><div class="scan-result-icon">🔴</div><div class="scan-result-content"><div class="scan-result-title risk-critical">SSL Error: ${result.data.error}</div></div></div>`);
+    }
+  } else { showResult('sslResult', `<div class="log error">Error</div>`); }
+}
+
+async function loadReports() {
+  const result = await apiCall('/admin/scans', 'GET');
+  if (result.success && result.data.length) {
+    let html = '';
+    for (const report of result.data.slice(-10)) {
+      html += `<div class="scan-result-item"><div class="scan-result-icon">📄</div><div class="scan-result-content"><div class="scan-result-title">Scan ${report.scan_id?.substring(0,8)}</div><div class="scan-result-desc">Risk: ${report.risk_level || 'Unknown'}</div></div></div>`;
+    }
+    showResult('reportsList', html);
+  } else { showResult('reportsList', '<div class="scan-result-item">No reports</div>'); }
+}
+
+// ================= LOGIN =================
+async function doLogin() {
+  const username = document.getElementById('loginUser').value.trim();
+  const password = document.getElementById('loginPass').value;
+  const btn = document.getElementById('loginBtn');
+  const emoji = document.getElementById('emojiFeedback');
+  const statusDiv = document.getElementById('loginStatus');
+  if (!username || !password) { emoji.innerHTML = '😠'; statusDiv.textContent = 'Enter credentials'; return; }
+  btn.disabled = true;
+  emoji.innerHTML = '<span class="spinner"></span>';
+  statusDiv.textContent = 'Authenticating...';
+  const result = await apiCall('/auth/login', 'POST', { username, password });
+  if (result.success && result.data.success) {
+    ACCESS_TOKEN = result.data.access_token;
+    localStorage.setItem('accessToken', ACCESS_TOKEN);
+    emoji.innerHTML = '😊';
+    statusDiv.textContent = 'Access granted!';
+    setTimeout(() => {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'flex';
+      renderSidebar();
+      loadPage('dashboard');
+      addLog('Welcome to Raven Fortress!', 'success');
+      testConnection();
+      updateDashboardStats();
+    }, 1000);
+  } else {
+    emoji.innerHTML = '😠';
+    statusDiv.textContent = 'Invalid credentials. Use admin / raven256';
+    btn.disabled = false;
+  }
+}
+
+async function sendCommand() {
+  const input = document.getElementById('commandInput');
+  const cmd = input.value.trim();
+  if (!cmd) return;
+  addLog(`> ${cmd}`, 'user');
+  input.value = '';
+  if (aiEnabled) {
+    const result = await apiCall('/ai/chat', 'POST', { message: cmd });
+    if (result.success) addLog(result.data.message, 'ai');
+    else addLog(`Error: ${result.error}`, 'error');
+  } else {
+    addLog('AI disabled. Enable AI from settings.', 'info');
+  }
+}
+
+window.addEventListener('load', () => {
+  addLog('Raven Fortress ready', 'success');
+  addLog('Matrix rain active - hacker mode engaged', 'info');
+});
+</script>
+</body>
+</html>

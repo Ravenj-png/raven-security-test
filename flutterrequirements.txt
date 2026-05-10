@@ -1,0 +1,9 @@
+Flask==2.3.3
+flask-cors==4.0.0
+flask-limiter==3.5.0
+flask-jwt-extended==4.5.2
+flask-bcrypt==1.0.1
+requests==2.31.0
+psutil==5.9.5
+gunicorn==21.2.0
+python-dotenv==1.0.0
