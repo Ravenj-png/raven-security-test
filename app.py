@@ -961,35 +961,53 @@ def run_code():
 
 # ================= ==========================================
 # ================= AI CHAT =================
-# ================= ==========================================
+# ================= ==========================================import openai
+import os
+
+# Get OpenAI API key from environment variable
+OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
+
 @app.route('/api/ai/chat', methods=['POST'])
 @limiter.limit("10 per minute")
 def ai_chat():
     data = request.get_json()
     message = data.get('message', '')
+    
+    # If OpenAI API key is available, use REAL AI
+    if OPENAI_API_KEY:
+        try:
+            openai.api_key = OPENAI_API_KEY
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": "You are Raven Fortress AI, a cybersecurity expert. Help users secure THEIR own systems. Provide practical security advice."},
+                    {"role": "user", "content": message}
+                ],
+                max_tokens=500,
+                temperature=0.7
+            )
+            ai_response = response.choices[0].message.content
+            return jsonify({"message": ai_response})
+        except Exception as e:
+            # Fallback to local AI if API fails
+            pass
+    
+    # LOCAL AI (Fallback - No API key needed)
     message_lower = message.lower()
-
-    if 'scan' in message_lower:
-        response = "🔍 I can help you scan your systems. Use the Full Security Scan tool in ADMIN mode to test your websites for vulnerabilities."
-    elif 'password' in message_lower:
-        response = "🔐 For password security:\n1) Use bcrypt with cost factor 12\n2) Enforce 12+ character passwords\n3) Enable 2FA\n4) Use a password manager"
-    elif 'hydra' in message_lower:
-        response = "🐉 Hydra is a brute force tool that tests passwords on YOUR login endpoints. It shows found credentials in real-time."
-    elif 'nmap' in message_lower:
-        response = "🌐 Nmap scans ports on YOUR systems to find open services and potential vulnerabilities. It shows which ports are exposed."
+    
+    if 'hydra' in message_lower:
+        response = "🔐 Hydra is a brute force tool that tests passwords on YOUR login endpoints. It shows found credentials in real-time."
     elif 'hashcat' in message_lower:
         response = "💎 Hashcat analyzes password hashes. It can crack MD5/SHA1 instantly and shows the actual password when found."
-    elif 'reaver' in message_lower:
-        response = "📡 Reaver tests WiFi WPS security. Use it on YOUR WiFi networks to find WPS PIN and WiFi password vulnerabilities."
-    elif 'wifi' in message_lower:
-        response = "📶 WiFi scanner detects devices on YOUR local network and shows open ports on each device."
-    elif 'help' in message_lower:
-        response = "📋 Available tools:\n• Hydra - Brute force login attacks\n• Nmap - Port scanning\n• Hashcat - Password hash cracking\n• Reaver - WiFi WPS testing\n• Dirb - Directory enumeration\n• Subdomain - Subdomain discovery\n• WiFi Scanner - Network device discovery\n• Rate Limit - Test rate limiting\n• Headers - Security headers check\n• SSL - Certificate checker\n• WAF - Web firewall detection\n• Password Strength - Password analysis"
+    elif 'password' in message_lower:
+        response = "🔐 Use bcrypt with cost factor 12, enforce 12+ character passwords, and enable 2FA."
+    elif 'scan' in message_lower:
+        response = "🔍 Use the Full Security Scan tool in ADMIN mode to test your websites for vulnerabilities."
     else:
-        response = "🛡️ I'm your security assistant. Type 'help' for available tools or ask specific questions about security testing."
-
+        response = "🛡️ I'm your security assistant. Type 'help' for available tools or ask about: passwords, SQL injection, XSS, port scanning, brute force, hash cracking."
+    
     return jsonify({"message": response})
-
+    
 # ================= ==========================================
 # ================= OTHER SCANNERS =================
 # ================= ==========================================
