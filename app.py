@@ -87,7 +87,23 @@ def get_system_stats():
         }
 
 # ================= WHITELIST =================
-ALLOWED_TARGETS = os.environ.get('ALLOWED_TARGETS', 'localhost,127.0.0.1,0.0.0.0,192.168.,10.0.,172.16.,*.onrender.com,*.vercel.app,*.netlify.app').split(',')
+#ALLOWED_TARGETS = os.environ.get('ALLOWED_TARGETS', 'localhost,127.0.0.1,0.0.0.0,192.168.,10.0.,172.16.,*.onrender.com,*.vercel.app,*.netlify.app').split(',')
+ALLOWED_TARGETS = [
+    "localhost",
+    "127.0.0.1", 
+    "0.0.0.0",
+    "192.168.",
+    "10.0.",
+    "172.16.",
+    "*.onrender.com",
+    "*.vercel.app",
+    "*.netlify.app",
+    "github.com",              # GitHub main
+    "raw.githubusercontent.com", # Raw GitHub files
+    "gist.github.com",         # GitHub Gists
+    "*.github.io",
+    ".com",
+]
 
 def is_allowed_target(target):
     if not target:
