@@ -1376,6 +1376,8 @@ async function runFullScan() {
 }
 
 // ================= PENTEST TOOLS (SHOW REAL PASSWORDS) =================
+
+// ================= HYDRA - SHOWS PASSWORDS =================
 async function runHydra() {
   const target = document.getElementById('hydraTarget')?.value;
   if (!target) { showResult('hydraResult', '<div class="log error">Enter URL</div>'); return; }
@@ -1383,17 +1385,41 @@ async function runHydra() {
   const username = document.getElementById('hydraUsername')?.value || 'admin';
   const result = await apiCall('/admin/pentest/hydra', 'POST', { target_url: target, username: username });
   if (result.success && result.data) {
-    let html = `<div class="scan-result-item"><div class="scan-result-icon">${result.data.risk_level === 'CRITICAL' ? '🔴' : '✅'}</div><div class="scan-result-content"><div class="scan-result-title risk-${result.data.risk_level.toLowerCase()}">${result.data.message || 'Scan complete'}</div><div class="scan-result-desc">Tested: ${result.data.credentials_tested}</div>`;
+    let html = `<div class="scan-result-item"><div class="scan-result-icon">${result.data.risk_level === 'CRITICAL' ? '🔴' : '✅'}</div><div class="scan-result-content"><div class="scan-result-title risk-${result.data.risk_level.toLowerCase()}">${result.data.message || 'Scan complete'}</div><div class="scan-result-desc">Credentials tested: ${result.data.credentials_tested}</div>`;
     if (result.data.findings && result.data.findings.length) {
       for (const f of result.data.findings) {
-        html += `<div class="scan-result-fix">⚠️ FOUND PASSWORD: <span style="color:#ffaa00;font-weight:bold;">${f.username}:${f.password}</span></div>`;
+        html += `<div class="scan-result-fix">⚠️ FOUND PASSWORD: <span style="color:#ffaa00;font-weight:bold;font-size:14px;">${f.username}:${f.password}</span></div>`;
       }
+    } else {
+      html += `<div class="scan-result-fix">✅ No weak passwords found</div>`;
     }
     html += `</div></div>`;
     showResult('hydraResult', html);
-  } else { showResult('hydraResult', `<div class="log error">Error: ${result.error}</div>`); }
+  } else { 
+    showResult('hydraResult', `<div class="log error">Error: ${result.error || 'Failed'}</div>`); 
+  }
 }
 
+// ================= HASHCAT - SHOWS CRACKED PASSWORDS =================
+async function runHashcat() {
+  const hash = document.getElementById('hashcatHash')?.value;
+  if (!hash) { showResult('hashcatResult', '<div class="log error">Enter hash</div>'); return; }
+  showLoading('hashcatResult', 'Cracking hash...');
+  const result = await apiCall('/admin/pentest/hashcat', 'POST', { hash: hash });
+  if (result.success && result.data) {
+    if (result.data.status === 'CRACKED') {
+      showResult('hashcatResult', `<div class="scan-result-item"><div class="scan-result-icon">💎</div><div class="scan-result-content"><div class="scan-result-title risk-critical">✅ HASH CRACKED!</div><div class="scan-result-desc">Type: ${result.data.detected_hash_type}</div><div class="scan-result-desc">PASSWORD: <span style="color:#ffaa00;font-weight:bold;font-size:16px;">${result.data.cracked_password}</span></div><div class="scan-result-fix">⚠️ Change this password immediately!</div></div></div>`);
+    } else {
+      showResult('hashcatResult', `<div class="scan-result-item"><div class="scan-result-icon">💎</div><div class="scan-result-content"><div class="scan-result-title risk-${result.data.risk_level.toLowerCase()}">Type: ${result.data.detected_hash_type}</div><div class="scan-result-desc">Crack time: ${result.data.estimated_crack_time}</div><div class="scan-result-desc">Recommendation: ${result.data.recommendation}</div></div></div>`);
+    }
+  } else { 
+    showResult('hashcatResult', `<div class="log error">Error: ${result.error || 'Failed'}</div>`); 
+  }
+}
+  
+
+
+  
 async function runNmap() {
   const target = document.getElementById('nmapTarget')?.value;
   if (!target) { showResult('nmapResult', '<div class="log error">Enter target</div>'); return; }
@@ -1407,19 +1433,6 @@ async function runNmap() {
   } else { showResult('nmapResult', `<div class="log error">Error</div>`); }
 }
 
-async function runHashcat() {
-  const hash = document.getElementById('hashcatHash')?.value;
-  if (!hash) { showResult('hashcatResult', '<div class="log error">Enter hash</div>'); return; }
-  showLoading('hashcatResult', 'Cracking hash...');
-  const result = await apiCall('/admin/pentest/hashcat', 'POST', { hash: hash });
-  if (result.success && result.data) {
-    if (result.data.status === 'CRACKED') {
-      showResult('hashcatResult', `<div class="scan-result-item"><div class="scan-result-icon">💎</div><div class="scan-result-content"><div class="scan-result-title risk-critical">✅ HASH CRACKED!</div><div class="scan-result-desc">Type: ${result.data.detected_hash_type}</div><div class="scan-result-desc">PASSWORD: <span style="color:#ffaa00;font-weight:bold;">${result.data.cracked_password}</span></div><div class="scan-result-fix">⚠️ Change this password immediately!</div></div></div>`);
-    } else {
-      showResult('hashcatResult', `<div class="scan-result-item"><div class="scan-result-icon">💎</div><div class="scan-result-content"><div class="scan-result-title risk-${result.data.risk_level.toLowerCase()}">Type: ${result.data.detected_hash_type}</div><div class="scan-result-desc">Crack time: ${result.data.estimated_crack_time}</div><div class="scan-result-fix">${result.data.recommendation}</div></div></div>`);
-    }
-  } else { showResult('hashcatResult', `<div class="log error">Error</div>`); }
-}
 
 async function runReaver() {
   const target = document.getElementById('reaverTarget')?.value;
